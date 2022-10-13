@@ -3,6 +3,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from core import bot, dp
+from database.sqlite_db import sql_add_command
+from keybords.admin_kb import button_case_admin
 
 
 ID_ADMIN = (824803853, 251881124)
@@ -21,7 +23,8 @@ async def access_check(message: types.Message):
     if message.from_user.id in ID_ADMIN:
         await bot.send_message(
             message.from_user.id,
-            'Добро пожаловать в админ-панель. Что будем делать?'
+            'Добро пожаловать в админ-панель. Что будем делать?',
+            reply_markup=button_case_admin
         )
 
 # Начало диалога и загрузка пунка меню
@@ -83,11 +86,7 @@ async def load_recommend(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['recommend'] = message.text
 
-        async with state.proxy() as data:
-            await bot.send_message(
-                message.from_user.id,
-                str(data)
-            )
+        await sql_add_command(state)
         await state.finish()
 
 
